@@ -1,0 +1,12 @@
+[package]
+name = "token-wrap-reserve-math"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+description = "Checked reserve/supply and fee accounting for the reserve-priced token wrapper"
+
+# Keep the accounting kernel testable independently of the SVM toolchain.
+[workspace]
+
+[lib]
+path = "src/lib.rs"
