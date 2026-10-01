@@ -1,8 +1,9 @@
 use {
     crate::{
         common::{
-            get_account_owner, get_mint_for_token_account, parse_presigner, parse_pubkey,
-            parse_token_program, process_transaction,
+            append_hook_accounts, get_account_owner, get_mint_for_token_account,
+            parse_hook_account, parse_presigner, parse_pubkey, parse_token_program,
+            process_transaction, HookAccount,
         },
         config::Config,
         output::{format_output, println_display},
@@ -72,6 +73,12 @@ pub struct UnwrapArgs {
     /// queried if not provided.
     #[clap(long, value_parser = parse_token_program)]
     pub unwrapped_token_program: Option<Pubkey>,
+
+    /// Additional accounts required by the unwrapped mint's transfer hook, in
+    /// hook order. Repeat as --hook-account PUBKEY or PUBKEY:writable.
+    /// These accounts are passed as non-signers after any multisig signers.
+    #[clap(long, multiple = true, value_parser = parse_hook_account)]
+    pub hook_account: Vec<HookAccount>,
 
     /// Member signer of a multisig account.
     /// Use this argument multiple times for each signer.
@@ -218,7 +225,7 @@ pub async fn command_unwrap(
         .map(|s| s.pubkey())
         .collect::<Vec<Pubkey>>();
 
-    let instruction = unwrap(
+    let mut instruction = unwrap(
         &spl_token_wrap::id(),
         &escrow_account,
         &args.unwrapped_token_recipient,
@@ -232,6 +239,7 @@ pub async fn command_unwrap(
         &multisig_pubkeys.iter().collect::<Vec<&Pubkey>>(),
         args.amount,
     );
+    append_hook_accounts(&mut instruction, &args.hook_account);
 
     let blockhash = if let Some(hash) = args.blockhash {
         hash

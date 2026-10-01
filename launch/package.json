@@ -1,0 +1,25 @@
+{
+  "name": "dbc-wrapper-market-launch",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "plan": "tsx src/launch.ts plan",
+    "create-pools": "tsx src/launch.ts create-pools",
+    "settle-fees": "tsx src/settle-fees.ts",
+    "check": "tsc --noEmit",
+    "test": "node --import tsx --test test/*.test.ts"
+  },
+  "dependencies": {
+    "@meteora-ag/cp-amm-sdk": "1.5.1",
+    "@meteora-ag/dynamic-bonding-curve-sdk": "1.5.13",
+    "@solana/spl-token": "^0.4.14",
+    "@solana/web3.js": "^1.98.4",
+    "bn.js": "^5.2.2"
+  },
+  "devDependencies": {
+    "@types/bn.js": "^5.2.0",
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}

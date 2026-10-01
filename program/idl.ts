@@ -34,7 +34,7 @@ const codama = createFromRoot(
   rootNode(
     programNode({
       name: "tokenWrap",
-      publicKey: "TwRapQCDhWkZRrDaHfZGuHxkZ91gHDRkyuzNqeU5MgR",
+      publicKey: "BDFzgK2BjLoZbV6SEewxQyf9eaXyvqKo4JPMsSybsmMs",
       version: "0.1.0",
       accounts: [
         accountNode({

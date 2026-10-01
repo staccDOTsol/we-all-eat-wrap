@@ -3,6 +3,7 @@ use {
     clap::ArgMatches,
     solana_clap_v3_utils::keypair::pubkey_from_path,
     solana_client::nonblocking::rpc_client::RpcClient,
+    solana_instruction::{AccountMeta, Instruction},
     solana_presigner::Presigner,
     solana_pubkey::Pubkey,
     solana_signature::Signature,
@@ -32,6 +33,40 @@ pub fn parse_token_program(value: &str) -> Result<Pubkey, String> {
     } else {
         Err("Invalid token program. Must be spl-token or spl-token-2022".to_string())
     }
+}
+
+/// An account required by a Token-2022 transfer hook. The caller supplies
+/// these in the order expected by the hook's extra-account-metas list.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct HookAccount {
+    pub address: Pubkey,
+    pub writable: bool,
+}
+
+/// Parse `PUBKEY` (read-only) or `PUBKEY:writable`.
+/// Hook accounts supplied through this option are never transaction signers.
+pub fn parse_hook_account(value: &str) -> Result<HookAccount, String> {
+    let (address, access) = value.split_once(':').unwrap_or((value, "readonly"));
+    let writable = match access {
+        "readonly" => false,
+        "writable" => true,
+        _ => return Err("Hook account must be PUBKEY or PUBKEY:writable".to_string()),
+    };
+    let address =
+        Pubkey::from_str(address).map_err(|_| format!("Invalid hook account pubkey: {address}"))?;
+    Ok(HookAccount { address, writable })
+}
+
+pub fn append_hook_accounts(instruction: &mut Instruction, hook_accounts: &[HookAccount]) {
+    instruction
+        .accounts
+        .extend(hook_accounts.iter().map(|account| {
+            if account.writable {
+                AccountMeta::new(account.address, false)
+            } else {
+                AccountMeta::new_readonly(account.address, false)
+            }
+        }));
 }
 
 pub fn parse_presigner(value: &str) -> Result<Presigner, String> {
@@ -114,4 +149,44 @@ pub async fn assert_mint_account(
         .map_err(|e| format!("Failed to unpack as spl token mint: {:?}", e))?;
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn hook_accounts_preserve_order_and_permissions() {
+        let first = Pubkey::new_from_array([1; 32]);
+        let second = Pubkey::new_from_array([2; 32]);
+        let accounts = [
+            parse_hook_account(&first.to_string()).unwrap(),
+            parse_hook_account(&format!("{second}:writable")).unwrap(),
+        ];
+        let mut instruction = Instruction::new_with_bytes(
+            Pubkey::new_from_array([3; 32]),
+            &[],
+            vec![AccountMeta::new_readonly(
+                Pubkey::new_from_array([4; 32]),
+                false,
+            )],
+        );
+
+        append_hook_accounts(&mut instruction, &accounts);
+
+        assert_eq!(instruction.accounts.len(), 3);
+        assert_eq!(
+            instruction.accounts[1],
+            AccountMeta::new_readonly(first, false)
+        );
+        assert_eq!(instruction.accounts[2], AccountMeta::new(second, false));
+    }
+
+    #[test]
+    fn hook_account_rejects_signer_and_unknown_modes() {
+        let address = Pubkey::new_from_array([1; 32]);
+        assert!(parse_hook_account(&format!("{address}:signer")).is_err());
+        assert!(parse_hook_account(&format!("{address}:writeable")).is_err());
+        assert!(parse_hook_account("not-a-pubkey").is_err());
+    }
 }

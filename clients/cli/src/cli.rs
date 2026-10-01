@@ -137,3 +137,62 @@ impl Command {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use solana_pubkey::Pubkey;
+
+    #[test]
+    fn wrap_and_unwrap_accept_ordered_hook_accounts() {
+        let first = Pubkey::new_from_array([1; 32]);
+        let second = Pubkey::new_from_array([2; 32]);
+        let account = Pubkey::new_from_array([3; 32]);
+        let recipient = Pubkey::new_from_array([4; 32]);
+        let token_program = spl_token::id();
+        let first_arg = first.to_string();
+        let second_arg = format!("{second}:writable");
+
+        let wrap = Cli::try_parse_from([
+            "spl-token-wrap",
+            "wrap",
+            &account.to_string(),
+            &token_program.to_string(),
+            "1",
+            "--hook-account",
+            &first_arg,
+            "--hook-account",
+            &second_arg,
+        ])
+        .unwrap();
+        let unwrap = Cli::try_parse_from([
+            "spl-token-wrap",
+            "unwrap",
+            &account.to_string(),
+            &recipient.to_string(),
+            "1",
+            "--hook-account",
+            &first_arg,
+            "--hook-account",
+            &second_arg,
+        ])
+        .unwrap();
+
+        for accounts in [
+            match wrap.command {
+                Command::Wrap(args) => args.hook_account,
+                _ => unreachable!(),
+            },
+            match unwrap.command {
+                Command::Unwrap(args) => args.hook_account,
+                _ => unreachable!(),
+            },
+        ] {
+            assert_eq!(accounts.len(), 2);
+            assert_eq!(accounts[0].address, first);
+            assert!(!accounts[0].writable);
+            assert_eq!(accounts[1].address, second);
+            assert!(accounts[1].writable);
+        }
+    }
+}

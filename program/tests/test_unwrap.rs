@@ -273,8 +273,7 @@ fn test_unwrap_with_spl_token_2022_multisig() {
     );
 }
 
-#[test]
-fn test_unwrap_with_transfer_hook() {
+fn assert_unwrap_with_transfer_hook(wrapped_token_program: TokenProgram) {
     let hook_program_id = test_transfer_hook::id();
 
     // Testing if counter account is incremented via transfer hook
@@ -305,13 +304,13 @@ fn test_unwrap_with_transfer_hook() {
 
     let escrow_account = {
         let wrapped_mint_addr =
-            get_wrapped_mint_address(&unwrapped_mint.key, &spl_token_2022_interface::id());
+            get_wrapped_mint_address(&unwrapped_mint.key, &wrapped_token_program.id());
         let mint_authority = get_wrapped_mint_authority(&wrapped_mint_addr);
         KeyedAccount {
             key: get_escrow_address(
                 &unwrapped_mint.key,
                 &unwrapped_mint.account.owner,
-                &spl_token_2022_interface::id(),
+                &wrapped_token_program.id(),
             ),
             account: TokenAccountBuilder::new()
                 .token_program(TokenProgram::SplToken2022)
@@ -333,7 +332,7 @@ fn test_unwrap_with_transfer_hook() {
     // Execute the unwrap instruction using our UnwrapBuilder.
     let unwrap_result = UnwrapBuilder::default()
         .unwrapped_token_program(TokenProgram::SplToken2022)
-        .wrapped_token_program(TokenProgram::SplToken2022)
+        .wrapped_token_program(wrapped_token_program)
         .wrapped_token_starting_amount(source_starting_amount)
         .recipient_starting_amount(recipient_starting_amount)
         .recipient_token_account(recipient_token_account)
@@ -362,6 +361,16 @@ fn test_unwrap_with_transfer_hook() {
     // Verify counter was incremented
     let count = unwrap_result.extra_accounts[0].clone().account.data[0];
     assert_eq!(count, 1)
+}
+
+#[test]
+fn test_unwrap_with_transfer_hook() {
+    assert_unwrap_with_transfer_hook(TokenProgram::SplToken2022);
+}
+
+#[test]
+fn test_unwrap_hooked_dbc_mint_from_spl_wrapper() {
+    assert_unwrap_with_transfer_hook(TokenProgram::SplToken);
 }
 
 #[test]

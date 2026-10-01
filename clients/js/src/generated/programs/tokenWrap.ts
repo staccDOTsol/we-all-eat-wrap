@@ -61,7 +61,7 @@ import {
 import { findBackpointerPda, findWrappedMintAuthorityPda, findWrappedMintPda } from '../pdas';
 
 export const TOKEN_WRAP_PROGRAM_ADDRESS =
-    'TwRapQCDhWkZRrDaHfZGuHxkZ91gHDRkyuzNqeU5MgR' as Address<'TwRapQCDhWkZRrDaHfZGuHxkZ91gHDRkyuzNqeU5MgR'>;
+    'BDFzgK2BjLoZbV6SEewxQyf9eaXyvqKo4JPMsSybsmMs' as Address<'BDFzgK2BjLoZbV6SEewxQyf9eaXyvqKo4JPMsSybsmMs'>;
 
 export enum TokenWrapAccount {
     Backpointer,
@@ -104,7 +104,7 @@ export function identifyTokenWrapInstruction(
     });
 }
 
-export type ParsedTokenWrapInstruction<TProgram extends string = 'TwRapQCDhWkZRrDaHfZGuHxkZ91gHDRkyuzNqeU5MgR'> =
+export type ParsedTokenWrapInstruction<TProgram extends string = 'BDFzgK2BjLoZbV6SEewxQyf9eaXyvqKo4JPMsSybsmMs'> =
     | ({ instructionType: TokenWrapInstruction.CreateMint } & ParsedCreateMintInstruction<TProgram>)
     | ({ instructionType: TokenWrapInstruction.Wrap } & ParsedWrapInstruction<TProgram>)
     | ({ instructionType: TokenWrapInstruction.Unwrap } & ParsedUnwrapInstruction<TProgram>)

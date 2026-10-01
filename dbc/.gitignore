@@ -1,0 +1,5 @@
+node_modules/
+config.local.json
+claim-receipts.json
+claim-receipts.json.lock
+claim-receipts.json.tmp-*
