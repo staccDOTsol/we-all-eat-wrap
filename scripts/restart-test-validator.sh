@@ -7,7 +7,7 @@ cd "${src_root}"
 ARGS=(
   -r
   -q
-  --bpf-program TwRapQCDhWkZRrDaHfZGuHxkZ91gHDRkyuzNqeU5MgR ./target/deploy/spl_token_wrap.so
+  --bpf-program BDFzgK2BjLoZbV6SEewxQyf9eaXyvqKo4JPMsSybsmMs ./target/deploy/spl_token_wrap.so
 )
 PORT=8899
 PID=$(lsof -t -i:$PORT)

@@ -16,7 +16,7 @@ use {
     spl_associated_token_account_interface::address::get_associated_token_address_with_program_id,
 };
 
-solana_pubkey::declare_id!("TwRapQCDhWkZRrDaHfZGuHxkZ91gHDRkyuzNqeU5MgR");
+solana_pubkey::declare_id!("BDFzgK2BjLoZbV6SEewxQyf9eaXyvqKo4JPMsSybsmMs");
 
 const WRAPPED_MINT_SEED: &[u8] = br"mint";
 

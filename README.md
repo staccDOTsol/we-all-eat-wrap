@@ -1,5 +1,25 @@
 # SPL Token Wrap Program
 
+This branch is a deployable fork of Solana's Token Wrap program built on
+[staccDOTsol's reserve/supply pricing PR](https://github.com/solana-program/token-wrap/pull/694).
+Its program ID is reserved locally; it has not been deployed. The program
+keypair is kept outside the repository at
+`/Users/stacc/.config/solana/we-all-eat-wrap-program.json`.
+
+The proposed two-token launch has a [DBC preflight](./dbc/README.md) and a
+[five-market DAMM v2 launcher and fee route](./launch/README.md). Both use
+templates until the DBC mints, hook program, authorities, pool configs, and
+seed amounts are chosen. No token, DBC, wrapper, or DAMM pool has been launched
+by this repository. The transfer hook is a separate program and is still a
+design dependency; this fork only forwards its required accounts during
+wrapping and unwrapping.
+The selected [power-pair design](./docs/power-pair-design.md) uses a
+Tracer-style transfer between long and short collateral vaults. The two DBCs
+are intended to stay on their curves with high finite migration thresholds.
+The [standalone power-transfer math prototype](./strategy/README.md) is
+implemented. The reserve-moving hook, oracle keeper, and mechanism linking
+vault value to the traded token prices are not implemented yet.
+
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/solana-program/token-wrap/main.yml?logo=GitHub)](https://github.com/solana-program/token-wrap/actions/workflows/main.yml)
 [![Crates.io](https://img.shields.io/crates/v/spl-token-wrap-cli)](https://crates.io/crates/spl-token-wrap-cli)
 [![npm](https://img.shields.io/npm/v/@solana-program/token-wrap)](https://www.npmjs.com/package/@solana-program/token-wrap)
@@ -8,7 +28,7 @@ This program enables the creation of "wrapped" versions of existing SPL tokens, 
 different token standards. If you are building an app with a mint/token and find yourself wishing you could take
 advantage of some of the latest features of a specific token program, this might be for you!
 
-- **Program ID:** `TwRapQCDhWkZRrDaHfZGuHxkZ91gHDRkyuzNqeU5MgR`
+- **Fork program ID (reserved, not deployed):** `BDFzgK2BjLoZbV6SEewxQyf9eaXyvqKo4JPMsSybsmMs`
 - **IDL:** [`./idl.json`](./idl.json)
 - **Docs & SDK Guide:** https://www.solana-program.com/docs/token-wrap
 
@@ -49,13 +69,14 @@ It supports the following primary operations:
 
     * Unwrapped tokens are transferred from the user's account to an escrow account. Any unwrapped token account whose
       owner is a PDA controlled by the Token Wrap program can be used.
-    * An equivalent amount of wrapped tokens is minted to the user's wrapped token account.
+    * Wrapped tokens are minted at the current escrow-reserve-to-wrapper-supply
+      rate, after any base-token transfer fee.
 
 3. **`Unwrap`:** This operation burns wrapped tokens and releases unwrapped token deposits.
 
     * Wrapped tokens are burned from the user's wrapped token account.
-    * An equivalent amount of unwrapped tokens is transferred from the escrow account to the user's unwrapped token
-      account.
+    * Unwrapped tokens are released at the current escrow-reserve-to-wrapper-supply
+      rate.
 
 4. **`CloseStuckEscrow`:** This operation handles an edge case with re-creating a mint with the MintCloseAuthority
    extension.
@@ -82,8 +103,24 @@ It supports the following primary operations:
       sufficient lamports to cover rent for the Metaplex account.
     * Supports: `Token-2022 -> SPL Token` and `SPL Token -> SPL Token`.
 
-The 1:1 relationship between wrapped and unwrapped tokens is maintained through the escrow mechanism, ensuring that
-wrapped tokens are always fully backed by their unwrapped counterparts.
+The first wrap, when wrapper supply is zero, mints units 1:1 against the net
+base amount received. Later wraps and unwraps use the escrowed base reserve
+divided by outstanding wrapper supply, rounding down. A donation to the base
+escrow increases the base-token amount redeemable per wrapper; it does not
+deposit liquidity into a DAMM v2 pool. The wrapper remains backed by the
+base tokens in its escrow, subject to the base mint's own authorities and
+transfer behavior.
+
+### Hooked Token-2022 base mints
+
+The `wrap` and `unwrap` CLI subcommands accept repeated
+`--hook-account PUBKEY[:writable]` arguments. Supply the hook program ID, its
+`ExtraAccountMetaList` PDA for the base mint, and every additional account the
+list requires, in hook order and with the required write flags. The CLI
+forwards these accounts; it does not discover or resolve them from the list.
+Missing or misordered accounts make the underlying Token-2022 transfer fail.
+The program tests exercise this forwarding with a counter hook and an ordinary
+SPL wrapper. The proposed reserve-moving strategy hook remains separate.
 
 ## Permissionless design
 

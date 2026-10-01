@@ -1,0 +1,15 @@
+[package]
+name = "two-pool-power-strategy"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Pure fixed-point collateral transfer math for paired perpetual pools"
+
+# Keep this prototype independent from the token-wrap workspace and Solana SDK.
+[workspace]
+
+[lib]
+name = "two_pool_power_strategy"
+path = "src/lib.rs"
+
+[dependencies]

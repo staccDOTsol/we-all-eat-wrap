@@ -1,0 +1,43 @@
+{
+  "cluster": "mainnet-beta",
+  "devnetUsdcMint": null,
+  "wrapperProgramId": "BDFzgK2BjLoZbV6SEewxQyf9eaXyvqKo4JPMsSybsmMs",
+  "tokens": [
+    {
+      "id": "long",
+      "quote": "WSOL",
+      "quoteMint": "So11111111111111111111111111111111111111112",
+      "hookProgramId": null,
+      "configAddress": null,
+      "baseMint": null,
+      "creator": null,
+      "feeClaimer": null,
+      "tokenDecimals": 6,
+      "tokenType": 1,
+      "mintAuthorityPolicy": "retained-partner",
+      "tokenAuthorityOption": 4,
+      "collectFeeMode": 0,
+      "migrationOption": 1,
+      "baseFeeMode": 0,
+      "creatorTradingFeePercentage": null
+    },
+    {
+      "id": "short",
+      "quote": "USDC",
+      "quoteMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      "hookProgramId": null,
+      "configAddress": null,
+      "baseMint": null,
+      "creator": null,
+      "feeClaimer": null,
+      "tokenDecimals": 6,
+      "tokenType": 1,
+      "mintAuthorityPolicy": "retained-partner",
+      "tokenAuthorityOption": 4,
+      "collectFeeMode": 0,
+      "migrationOption": 1,
+      "baseFeeMode": 0,
+      "creatorTradingFeePercentage": null
+    }
+  ]
+}

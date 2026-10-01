@@ -220,8 +220,7 @@ fn test_wrap_with_token_2022_multisig() {
     assert_wrap_result(starting_amount, wrap_amount, &wrap_result);
 }
 
-#[test]
-fn test_wrap_with_transfer_hook() {
+fn assert_wrap_with_transfer_hook(wrapped_token_program: TokenProgram) {
     let hook_program_id = test_transfer_hook::id();
 
     // Testing if counter account is incremented via transfer hook
@@ -247,7 +246,7 @@ fn test_wrap_with_transfer_hook() {
 
     let escrow_account = {
         let wrapped_mint_addr =
-            get_wrapped_mint_address(&unwrapped_mint.key, &spl_token_2022_interface::id());
+            get_wrapped_mint_address(&unwrapped_mint.key, &wrapped_token_program.id());
         let mint_authority = get_wrapped_mint_authority(&wrapped_mint_addr);
         TokenAccountBuilder::new()
             .token_program(TokenProgram::SplToken2022)
@@ -269,7 +268,7 @@ fn test_wrap_with_transfer_hook() {
 
     let wrap_result = WrapBuilder::default()
         .unwrapped_token_program(TokenProgram::SplToken2022)
-        .wrapped_token_program(TokenProgram::SplToken2022)
+        .wrapped_token_program(wrapped_token_program)
         .recipient_starting_amount(starting_amount)
         .wrap_amount(wrap_amount)
         .unwrapped_mint(unwrapped_mint)
@@ -290,6 +289,16 @@ fn test_wrap_with_transfer_hook() {
     // Verify counter was incremented
     let count = wrap_result.extra_accounts[0].clone().account.data[0];
     assert_eq!(count, 1)
+}
+
+#[test]
+fn test_wrap_with_transfer_hook() {
+    assert_wrap_with_transfer_hook(TokenProgram::SplToken2022);
+}
+
+#[test]
+fn test_wrap_hooked_dbc_mint_into_spl_wrapper() {
+    assert_wrap_with_transfer_hook(TokenProgram::SplToken);
 }
 
 #[test]

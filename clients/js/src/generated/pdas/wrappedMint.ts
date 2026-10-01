@@ -24,7 +24,7 @@ export async function findWrappedMintPda(
     config: { programAddress?: Address | undefined } = {},
 ): Promise<ProgramDerivedAddress> {
     const {
-        programAddress = 'TwRapQCDhWkZRrDaHfZGuHxkZ91gHDRkyuzNqeU5MgR' as Address<'TwRapQCDhWkZRrDaHfZGuHxkZ91gHDRkyuzNqeU5MgR'>,
+        programAddress = 'BDFzgK2BjLoZbV6SEewxQyf9eaXyvqKo4JPMsSybsmMs' as Address<'BDFzgK2BjLoZbV6SEewxQyf9eaXyvqKo4JPMsSybsmMs'>,
     } = config;
     return await getProgramDerivedAddress({
         programAddress,

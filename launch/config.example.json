@@ -1,0 +1,43 @@
+{
+  "cluster": "mainnet-beta",
+  "rpcUrl": null,
+  "creator": null,
+  "wrapperProgramId": "BDFzgK2BjLoZbV6SEewxQyf9eaXyvqKo4JPMsSybsmMs",
+  "dbc": {
+    "longBaseMint": null,
+    "shortBaseMint": null
+  },
+  "quotes": {
+    "wsolMint": "So11111111111111111111111111111111111111112",
+    "usdcMint": null
+  },
+  "markets": {
+    "long-wsol": {
+      "config": null,
+      "seedRaw": { "long": null, "wsol": null }
+    },
+    "long-usdc": {
+      "config": null,
+      "seedRaw": { "long": null, "usdc": null }
+    },
+    "short-wsol": {
+      "config": null,
+      "seedRaw": { "short": null, "wsol": null }
+    },
+    "short-usdc": {
+      "config": null,
+      "seedRaw": { "short": null, "usdc": null }
+    },
+    "long-short": {
+      "config": null,
+      "seedRaw": { "long": null, "short": null }
+    }
+  },
+  "feeZap": {
+    "swapSlippageBps": null,
+    "addLiquiditySlippageBps": null,
+    "swapInputBps": null,
+    "minimumWsolClaimRaw": null,
+    "minimumUsdcClaimRaw": null
+  }
+}
